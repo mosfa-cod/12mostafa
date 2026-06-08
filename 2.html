@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ABC Magic Cards — Mr. Mostafa</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,600&family=Caveat:wght@700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #1a0e06;
+  background-image:
+    radial-gradient(ellipse at 30% 20%, #2d1a08 0%, transparent 55%),
+    radial-gradient(ellipse at 70% 80%, #0e0804 0%, transparent 55%);
+  font-family: 'Crimson Text', Georgia, serif;
+  min-height: 100vh;
+  padding: 30px 20px 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── PAGE TITLE ── */
+.page-title {
+  text-align: center;
+  margin-bottom: 36px;
+  animation: fadeDown 0.8s ease both;
+}
+.page-title h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  color: #e8b84b;
+  text-shadow: 0 0 30px rgba(232,184,75,0.5), 2px 3px 0 #7a4d10;
+  letter-spacing: 3px;
+}
+.page-title p {
+  color: #c9a96e;
+  font-size: 1.1rem;
+  margin-top: 6px;
+  font-style: italic;
+}
+
+/* ── GRID OF CARDS ── */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+  max-width: 1300px;
+  width: 100%;
+}
+
+/* ── SINGLE CARD ── */
+.card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3/4;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  animation: cardAppear 0.6s ease both;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 0 2px #e8b84b;
+}
+
+/* Parchment texture background */
+.card-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 30%, #f5e6c4 0%, #ead49a 40%, #d4b870 100%);
+  border: 3px solid #c49a1a;
+  border-radius: 14px;
+  box-shadow:
+    inset 0 0 40px rgba(139,90,20,0.3),
+    inset 0 0 80px rgba(139,90,20,0.1),
+    0 8px 30px rgba(0,0,0,0.5);
+}
+
+/* Noise/texture overlay */
+.card-bg::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+  border-radius: 12px;
+}
+
+/* Corner ornaments */
+.corner { position: absolute; font-size: 1.4rem; color: #c49a1a; opacity: 0.7; z-index: 10; line-height: 1; }
+.corner.tl { top: 6px;  left: 8px; }
+.corner.tr { top: 6px;  right: 8px; }
+.corner.bl { bottom: 6px; left: 8px; }
+.corner.br { bottom: 6px; right: 8px; }
+
+/* Inner content */
+.card-inner {
+  position: relative;
+  z-index: 5;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 14px 12px;
+}
+
+/* ── TOP BANNER: Letter + Scroll ── */
+.top-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.big-letter {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.6rem;
+  font-weight: 700;
+  color: #c0392b;
+  text-shadow: 2px 3px 0 #7a1a10, 0 0 15px rgba(192,57,43,0.3);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.scroll-wrap {
+  position: relative;
+  background: linear-gradient(135deg, #e8b84b 0%, #f5d070 45%, #c49a1a 100%);
+  border-radius: 8px;
+  padding: 5px 20px 5px 16px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.3);
+  flex: 1;
+}
+.scroll-wrap::before,
+.scroll-wrap::after {
+  content: '';
+  position: absolute;
+  top: 50%; transform: translateY(-50%);
+  width: 10px; height: 24px;
+  background: #c49a1a;
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+.scroll-wrap::before { left: -5px; }
+.scroll-wrap::after  { right: -5px; }
+
+.scroll-word {
+  font-family: 'Caveat', cursive;
+  font-size: 1.65rem;
+  color: #fff;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.35);
+  display: block;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+/* ── IMAGE AREA ── */
+.card-image-area {
+  flex: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid rgba(196,154,26,0.4);
+  box-shadow: inset 0 0 20px rgba(139,90,20,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5.5rem;
+  background: linear-gradient(160deg, rgba(255,255,255,0.15) 0%, rgba(139,90,20,0.1) 100%);
+  position: relative;
+  margin-bottom: 10px;
+}
+.card-image-area::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 100%, rgba(139,90,20,0.15) 0%, transparent 70%);
+}
+
+/* ── SENTENCES ── */
+.sentences {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 0 2px;
+}
+.sentences li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-family: 'Crimson Text', Georgia, serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #3d1f0a;
+  line-height: 1.3;
+}
+.dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: #c0392b;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+/* ── SPEAK BUTTON ── */
+.speak-btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 8px;
+  background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(192,57,43,0.4), 0 1px 0 #7a1a10;
+  transition: all 0.18s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  letter-spacing: 1px;
+}
+.speak-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(192,57,43,0.5); }
+.speak-btn:active { transform: translateY(1px); }
+
+/* ── NAV ── */
+.nav-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 30px;
+  animation: fadeDown 0.6s 0.2s ease both;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.nav-btn {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  padding: 10px 24px;
+  border-radius: 30px;
+  border: 2px solid #e8b84b;
+  background: transparent;
+  color: #e8b84b;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 1px;
+}
+.nav-btn:hover, .nav-btn.active {
+  background: #e8b84b;
+  color: #1a0e06;
+  transform: scale(1.05);
+}
+.nav-btn.active {
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(232,184,75,0.4);
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes cardAppear {
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Print mode: show all as grid */
+@media print {
+  body { background: white; padding: 10px; }
+  .nav-bar, .page-title, .speak-btn { display: none !important; }
+  .cards-grid { display: grid !important; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+  .card { break-inside: avoid; }
+  .card-bg { box-shadow: none; border: 2px solid #c49a1a; }
+}
+
+/* Single card view */
+.single-view .cards-grid {
+  grid-template-columns: minmax(280px, 420px);
+  justify-content: center;
+}
+</style>
+</head>
+<body>
+
+<div class="page-title">
+  <h1>✨ Magic ABC Cards ✨</h1>
+  <p>By Mr. Mostafa — All 26 Letters</p>
+</div>
+
+<!-- VIEW TOGGLE NAV -->
+<div class="nav-bar" id="navBar">
+  <button class="nav-btn active" onclick="showAll()">📚 All Cards</button>
+  <button class="nav-btn" onclick="showSingle(0)" id="singleBtn">🔍 One Card</button>
+  <button class="nav-btn" id="prevBtn" onclick="prevCard()" style="display:none">◀ Prev</button>
+  <span id="cardCounter" style="color:#e8b84b;font-family:'Playfair Display',serif;display:none"></span>
+  <button class="nav-btn" id="nextBtn" onclick="nextCard()" style="display:none">Next ▶</button>
+  <button class="nav-btn" onclick="window.print()">🖨️ Print</button>
+</div>
+
+<div class="cards-grid" id="cardsGrid"></div>
+
+<script>
+const cards = [
+  { letter:"Aa", word:"Apple", emoji:"🍎",
+    lines:["An apple a day is so sweet!","Apples are amazing and red!","All apples grow on trees!","Add an apple to your lunch!"] },
+
+  { letter:"Bb", word:"Ball", emoji:"⚽",
+    lines:["Bounce the ball up high!","Big balls are so much fun!","Bring the ball and let's play!","Balls can be many colors!"] },
+
+  { letter:"Cc", word:"Cat", emoji:"🐱",
+    lines:["Cats can climb up trees!","Come and pet the cute cat!","Cats cuddle with us softly!","Can you hear the cat purr?"] },
+
+  { letter:"Dd", word:"Dog", emoji:"🐶",
+    lines:["Dogs dash and run fast!","Do you have a dog at home?","Dogs dig holes in the yard!","Dogs are devoted friends!"] },
+
+  { letter:"Ee", word:"Egg", emoji:"🥚",
+    lines:["Every chick hatches from an egg!","Eggs are everywhere on the farm!","Each egg is smooth and round!","Exciting things are inside eggs!"] },
+
+  { letter:"Ff", word:"Frog", emoji:"🐸",
+    lines:["Frogs can jump far and fast!","Find the frog by the pond!","Frogs feel wet and slimy!","Frogs fly... no, they jump!"] },
+
+  { letter:"Gg", word:"Goat", emoji:"🐐",
+    lines:["Goats graze on green grass!","Go say hello to the goat!","Goats give us yummy milk!","Great goats have curly horns!"] },
+
+  { letter:"Hh", word:"House", emoji:"🏡",
+    lines:["Home is a happy place!","Houses have helpful doors!","How many rooms in your house?","Houses help us stay warm!"] },
+
+  { letter:"Ii", word:"Clown", emoji:"🤡",
+    lines:["It is the incredible clown!","Imagine a clown who is funny!","Inside the circus he shines!","Is the clown making you laugh?"] },
+
+  { letter:"Jj", word:"Jump", emoji:"🦘",
+    lines:["Jump as high as you can!","Jumping is so joyful!","Just jump and touch the sky!","Joyful kids love to jump!"] },
+
+  { letter:"Kk", word:"King", emoji:"👑",
+    lines:["Kings keep their kingdoms safe!","A kind king wears a crown!","Kingdoms are kept by kings!","Kings know everyone by name!"] },
+
+  { letter:"Ll", word:"Lamp", emoji:"🪔",
+    lines:["Lamps light up the dark room!","Look at the lovely lamp glow!","Let the lamp shine bright!","Lamps lead the way at night!"] },
+
+  { letter:"Mm", word:"Moon", emoji:"🌙",
+    lines:["Moonlight makes the night magical!","Many stars sit near the moon!","Moonbeams reach far and wide!","Marvel at the glowing moon!"] },
+
+  { letter:"Nn", word:"Nest", emoji:"🪺",
+    lines:["Nests are nice cozy homes!","New baby birds live in nests!","Nature builds the best nests!","Notice the nest on the branch!"] },
+
+  { letter:"Oo", word:"Owl", emoji:"🦉",
+    lines:["Owls only fly at night!","Open your eyes like an owl!","Owls observe everything quietly!","Oh look, the owl says Hoot!"] },
+
+  { letter:"Pp", word:"Pig", emoji:"🐷",
+    lines:["Pink pigs play in the mud!","Pigs produce funny oink sounds!","Pretty pigs have curly tails!","Pigs prefer to eat and sleep!"] },
+
+  { letter:"Qq", word:"Queen", emoji:"👸",
+    lines:["Queens are quite magnificent!","Quickly bow to the queen!","A queen's crown is quite shiny!","Queens keep their kingdoms joyful!"] },
+
+  { letter:"Rr", word:"Rainbow", emoji:"🌈",
+    lines:["Rainbows rise after the rain!","Red is the first rainbow color!","Rainbows really have seven colors!","Run outside to see the rainbow!"] },
+
+  { letter:"Ss", word:"Sun", emoji:"☀️",
+    lines:["Sunshine is so warm and bright!","See the sun rise in the morning!","Sun sends us light and warmth!","Smile at the sunny summer day!"] },
+
+  { letter:"Tt", word:"Train", emoji:"🚂",
+    lines:["Trains travel on long tracks!","The train toots and goes fast!","Trains take us to new places!","Time to ride the big train!"] },
+
+  { letter:"Uu", word:"Umbrella", emoji:"☂️",
+    lines:["Under the umbrella stay dry!","Use an umbrella in the rain!","Up goes the colorful umbrella!","Umbrellas are useful in showers!"] },
+
+  { letter:"Vv", word:"Van", emoji:"🚐",
+    lines:["Vans can carry very many things!","Vroom goes the big blue van!","Visit friends in the family van!","Vans venture on long road trips!"] },
+
+  { letter:"Ww", word:"Whale", emoji:"🐳",
+    lines:["Whales swim in wide blue oceans!","Watch the whale blow water up!","Whales are wonderfully huge!","Wow, the whale waves at you!"] },
+
+  { letter:"Xx", word:"X-Ray", emoji:"🩻",
+    lines:["X-rays show exactly your bones!","eXamine the bones with an X-ray!","X-rays explain how bodies work!","X marks the bones on the screen!"] },
+
+  { letter:"Yy", word:"Yo-Yo", emoji:"🪀",
+    lines:["Your yo-yo goes up and down!","Yo-yos are your favorite toy!","Yes, a yo-yo is so much fun!","You can do yo-yo tricks!"] },
+
+  { letter:"Zz", word:"Zebra", emoji:"🦓",
+    lines:["Zebras have zigzag black stripes!","Zipping across the zebra runs!","Zero zebras look exactly alike!","Zebras snooze at night in peace!"] },
+];
+
+let currentCard = 0;
+let isSingleView = false;
+
+function buildCard(c, index) {
+  const delay = isSingleView ? 0 : (index * 0.06);
+  return `
+  <div class="card" style="animation-delay:${delay}s" onclick="${isSingleView ? '' : `showSingle(${index})`}" title="${isSingleView ? '' : 'Click to zoom'}">
+    <div class="card-bg"></div>
+    <span class="corner tl">❧</span>
+    <span class="corner tr">❧</span>
+    <span class="corner bl">❧</span>
+    <span class="corner br">❧</span>
+    <div class="card-inner">
+      <div class="top-banner">
+        <div class="big-letter">${c.letter}</div>
+        <div class="scroll-wrap"><span class="scroll-word">${c.word}</span></div>
+      </div>
+      <div class="card-image-area">${c.emoji}</div>
+      <ul class="sentences">
+        ${c.lines.map(l => `<li><span class="dot"></span><span>${l}</span></li>`).join('')}
+      </ul>
+      <button class="speak-btn" onclick="event.stopPropagation(); speak(${index})">🔊 Hear it!</button>
+    </div>
+  </div>`;
+}
+
+function renderGrid() {
+  const grid = document.getElementById('cardsGrid');
+  if (isSingleView) {
+    grid.innerHTML = buildCard(cards[currentCard], currentCard);
+    grid.parentElement.classList.add('single-view');
+    document.getElementById('prevBtn').style.display = '';
+    document.getElementById('nextBtn').style.display = '';
+    document.getElementById('cardCounter').style.display = '';
+    document.getElementById('cardCounter').textContent = `${currentCard + 1} / ${cards.length}`;
+    document.getElementById('singleBtn').textContent = '📚 All Cards';
+    document.getElementById('singleBtn').onclick = showAll;
+  } else {
+    grid.innerHTML = cards.map((c, i) => buildCard(c, i)).join('');
+    grid.parentElement.classList.remove('single-view');
+    document.getElementById('prevBtn').style.display = 'none';
+    document.getElementById('nextBtn').style.display = 'none';
+    document.getElementById('cardCounter').style.display = 'none';
+    document.getElementById('singleBtn').textContent = '🔍 One Card';
+    document.getElementById('singleBtn').onclick = () => showSingle(0);
+  }
+}
+
+function showAll() {
+  isSingleView = false;
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.nav-btn')[0].classList.add('active');
+  renderGrid();
+}
+
+function showSingle(idx) {
+  isSingleView = true;
+  currentCard = idx;
+  renderGrid();
+}
+
+function prevCard() {
+  currentCard = (currentCard - 1 + cards.length) % cards.length;
+  renderGrid();
+}
+
+function nextCard() {
+  currentCard = (currentCard + 1) % cards.length;
+  renderGrid();
+}
+
+function speak(idx) {
+  if (!window.speechSynthesis) return;
+  const c = cards[idx];
+  const text = `${c.letter[0]} is for ${c.word}. ${c.lines.join('. ')}`;
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'en-US';
+  utter.rate = 0.82;
+  utter.pitch = 1.1;
+  const voices = speechSynthesis.getVoices();
+  const pref = voices.find(v => /Samantha|Karen|Google US English/.test(v.name));
+  if (pref) utter.voice = pref;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utter);
+}
+
+// Keyboard nav in single view
+document.addEventListener('keydown', e => {
+  if (!isSingleView) return;
+  if (e.key === 'ArrowRight') nextCard();
+  if (e.key === 'ArrowLeft')  prevCard();
+  if (e.key === 'Escape') showAll();
+});
+
+if (window.speechSynthesis) speechSynthesis.getVoices();
+renderGrid();
+</script>
+</body>
+</html>
